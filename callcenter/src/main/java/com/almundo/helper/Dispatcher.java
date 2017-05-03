@@ -7,25 +7,24 @@ import com.almundo.entidades.Employee;
 import com.almundo.gestores.OperatorManager;
 
 /**
- * Clase para la asignaciÛn de llamadas a empleados
+ * Clase para la asignaci√≥n de llamadas a empleados
  */
 public class Dispatcher {
 	
-
 	private static Logger LOGGER = Logger.getLogger(Dispatcher.class);
 	
 	// --------------- METODOS -------------------
 	
 	/**
 	 * Se encarga de asignar la llamada a un empleado. 
-	 * Si la cola de llamadas est· vacÌa, asigna la nueva llamada a un empleado libre.
+	 * Si la cola de llamadas est√° vac√≠a, asigna la nueva llamada a un empleado libre.
 	 * Si hay llamadas en la cola, o no hay empleados libres, inserta la llamada al final de la cola de espera.
 	 * @param call llamada recibida
 	 * @return true si la llamada fue atendida, o false si fue insertada en la cola de espera
 	 */
 	public static boolean dispatchCall(Call call){
 		
-		LOGGER.info("Se recibiÛ llamada "+call.getNumber()+ " con duraciÛn "+call.getDurationInSeconds()+" segundos" );
+		LOGGER.info("Se recibi√≥ llamada "+call.getNumber()+ " con duraci√≥n "+call.getDurationInSeconds()+" segundos" );
 		
 		if(CallQueue.isEmpty() && assignCall(call)){
 			return true;
@@ -50,7 +49,7 @@ public class Dispatcher {
 	}
 
 	/**
-	 * MÈtodo que es invocado para notificar que un empleado ya est· libre.
+	 * M√©todo que es invocado para notificar que un empleado ya est√° libre.
 	 * Obtiene la siguiente llamada de la cola y la asigna a un empleado.
 	 */
 	public static void notifyFreeEmployee(){
