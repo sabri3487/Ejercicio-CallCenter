@@ -49,19 +49,16 @@ public class CallQueue {
     
     /**
      * Verifica el estado de la cola.
-     * @return true si hay llamadas en la cola, o false si la cola está vacía.
+     * @return true si la cola está vacía, o false si tiene llamadas
      */
-    public static boolean hasPendingCalls(){
-    	return getInstance().getQueue().size()>0;
+    public static boolean isEmpty(){
+    	return getInstance().getQueue().isEmpty();
     }
     
-    /**
-     * TODO: Realizar una acción para comunicar al usuario que la llamada debe esperar.
-     */
-    public static void notifyNoEmployeesAvailable() {
-		LOGGER.info("No hay operadores disponibles para atender la llamada.");
-	}
     
+    public static void clearQueue(){
+    	getInstance().getQueue().clear();
+    }
     
     // ----------------- GETTER / SETTER ----------------
     

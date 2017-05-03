@@ -9,72 +9,55 @@ import com.almundo.gestores.OperatorManager;
 /**
  * Clase para la asignación de llamadas a empleados
  */
-public class Dispatcher implements Runnable{
+public class Dispatcher {
 	
-	// --------------- ATRIBUTOS ----------------
-	
+
 	private static Logger LOGGER = Logger.getLogger(Dispatcher.class);
 	
-	private boolean isRunning;
-
-	
 	// --------------- METODOS -------------------
-
-	/**
-	 * Mientras este ejecutando el hilo, checkea cada 1 segundo si hay una llamada en la cola y la asigna
-	 */
-	public void run() {
-		LOGGER.info("Comienza a escuchar cola de llamadas.");
-        while ( this.isRunning ) {
-            dispatchCall();
-            sleep();
-        }
-    }
 	
 	/**
-	 * Se encarga de controlar si hay llamadas pendientes en la cola. 
-	 * Si hay un empleado libre, obtiene la siguiente llamada de la cola y se la asigna.
+	 * Se encarga de asignar la llamada a un empleado. 
+	 * Si la cola de llamadas está vacía, asigna la nueva llamada a un empleado libre.
+	 * Si hay llamadas en la cola, o no hay empleados libres, inserta la llamada al final de la cola de espera.
+	 * @param call llamada recibida
+	 * @return true si la llamada fue atendida, o false si fue insertada en la cola de espera
 	 */
-	private void dispatchCall(){
+	public static boolean dispatchCall(Call call){
 		
-		if( CallQueue.hasPendingCalls() ){
-			Employee freeEmployee = OperatorManager.getFreeEmployee();
-	    	if( freeEmployee!=null ){
-	    		Call call = CallQueue.retrieveCall();
-	            if ( call != null ) {
-	            	call.setTimeStart(System.currentTimeMillis());
-	            	freeEmployee.start(call);
-	            }
-	    	} else {
-	    		CallQueue.notifyNoEmployeesAvailable();
-	    	}
-		} 
+		LOGGER.info("Se recibió llamada "+call.getNumber()+ " con duración "+call.getDurationInSeconds()+" segundos" );
+		
+		if(CallQueue.isEmpty() && assignCall(call)){
+			return true;
+		}
+		CallQueue.enqueueCall(call);
+		return false;
+	}
+	
+	/**
+	 * Asigna la llamada a un empleado libre.
+	 * @param call llamada a asignar
+	 * @return true si la llamada fue atendida, o false si no hay empleados libres
+	 */
+	private static boolean assignCall(Call call) {
+		Employee freeEmployee = OperatorManager.getFreeEmployee();
+    	if( freeEmployee!=null ){
+            call.setTimeStart(System.currentTimeMillis());
+            freeEmployee.start(call);
+            return true;
+    	} 
+    	return false;
 	}
 
 	/**
-	 * Crea un hilo de ejecución
+	 * Método que es invocado para notificar que un empleado ya está libre.
+	 * Obtiene la siguiente llamada de la cola y la asigna a un empleado.
 	 */
-    public void start() {
-        isRunning = true;
-        new Thread( this ).start();
-    }
-
-    /**
-     * Detiene el hilo de ejecución
-     */
-    public void stop() {
-        isRunning = false;
-    }
-
-    /**
-     * Duerme el hilo de ejecución por 1 segundo
-     */
-    private void sleep() {
-        try {
-            Thread.sleep( 1000 );
-        } catch ( InterruptedException e ) {
-            e.printStackTrace();
-        }
-    }
-
+	public static void notifyFreeEmployee(){
+		Call call = CallQueue.retrieveCall();
+		if(call!=null){
+			assignCall(call);
+		}
+	}
+	
 }

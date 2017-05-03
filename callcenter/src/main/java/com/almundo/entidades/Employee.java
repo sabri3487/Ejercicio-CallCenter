@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 
 import com.almundo.constantes.Constants;
 import com.almundo.constantes.EnumEmployeeStatus;
+import com.almundo.helper.Dispatcher;
 
 /**
  * Clase que representa al empleado del Call Center
@@ -37,7 +38,7 @@ public class Employee implements Runnable {
         while ( this.isRunning ) {
 
             if ( System.currentTimeMillis() > (this.callReceived.getTimeStart() + this.callReceived.getDuration()) 
-              || System.currentTimeMillis() > (this.callReceived.getTimeStart() + Constants.MAX_DURATION_CALL)) {
+              || System.currentTimeMillis() > (this.callReceived.getTimeStart() + Constants.MAX_DURATION_CALL*1000)) {
             	
             	LOGGER.info("Empleado ID " + id + " Colgando llamada " + callReceived.getNumber());
                 stop();
@@ -54,7 +55,7 @@ public class Employee implements Runnable {
      */
     public void start(Call call) {
     	
-    	LOGGER.info("Empleado ID " + id + " Atendiendo llamada " + call.getNumber() + " con duración "+ call.getDurationInSeconds() +" segundos");
+    	LOGGER.info("Empleado ID " + id + " Atendiendo llamada " + call.getNumber());
         this.isRunning = true;
         this.callReceived = call;
         this.status = EnumEmployeeStatus.IN_CALL.getProperty();
@@ -64,10 +65,12 @@ public class Employee implements Runnable {
 
     /**
      * Finaliza el hilo de ejecución y cambia el estado del empleado a libre.
+     * Notifica al Dispatcher que hay un empleado libre.
      */
     public void stop() {
         this.isRunning = false;
         this.status = EnumEmployeeStatus.FREE.getProperty();
+        Dispatcher.notifyFreeEmployee();
     }
 
     /**

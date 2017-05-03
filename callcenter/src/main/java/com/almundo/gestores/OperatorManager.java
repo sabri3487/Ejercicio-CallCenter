@@ -43,6 +43,10 @@ public class OperatorManager {
 		getInstance().getEmployees().add(employee);
 	}
 	
+	public static void clearEmployees(){
+		getInstance().getEmployees().clear();
+	}
+	
 	// --------------- GETTER / SETTER ---------------
 	
 	public static OperatorManager getInstance() {
